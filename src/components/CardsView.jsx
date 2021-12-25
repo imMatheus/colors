@@ -54,7 +54,7 @@ export default function CardsView() {
         return () => {
             window.removeEventListener('keydown', (event) => {})
         }
-    }, [loading])
+    }, [loading, showColorName])
 
     useEffect(() => {
         setColors(pathname.replace('/', '').split('-'))
