@@ -54,7 +54,7 @@ export default function CardsView() {
         return () => {
             window.removeEventListener('keydown', (event) => {})
         }
-    }, [])
+    }, [loading])
 
     useEffect(() => {
         setColors(pathname.replace('/', '').split('-'))
@@ -62,7 +62,7 @@ export default function CardsView() {
 
     useEffect(() => {
         navigate(`/${colorsRef.current.join('-').replaceAll('#', '')}`)
-    }, [colors])
+    }, [colors, navigate])
 
     function handleDragEnd(result) {
         const items = Array.from(colors)
