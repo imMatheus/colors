@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import { X, Grid, Star, Move, Copy, Lock, Unlock, Plus } from 'react-feather'
+import React, { useEffect, useState } from 'react'
+import { X, Move, Plus } from 'react-feather'
 import Color from 'color'
 import nearestColor from 'nearest-color'
 import colorNameList from 'color-name-list'
@@ -20,19 +20,26 @@ function Option({ children, className, isLight, onClick }) {
     )
 }
 
-export default function Card({ color, index, provider }) {
+export default function Card({ color, index, provider, showColorName }) {
     color = color.replaceAll('#', '')
     const { pathname } = useLocation()
+    const [colorName, setColorName] = useState(null)
     const isLight = Color('#' + color.replaceAll('#', '')).isLight()
     const navigate = useNavigate()
-    const [hover, setHover] = useState(false)
-    const colors = pathname.replace('/', '').split('-')
+    const colors = pathname.replace('/', '').split('-') //TODO fixa det här
 
-    // const colorList = colorNameList.reduce(
-    //     (o, { name, hex }) => Object.assign(o, { [name]: hex }),
-    //     {}
-    // )
-    // const nearest = nearestColor.from(colorList)
+    useEffect(() => {
+        if (showColorName) {
+            const colorList = colorNameList.reduce(
+                (o, { name, hex }) => Object.assign(o, { [name]: hex }),
+                {}
+            )
+            const nearest = nearestColor.from(colorList)
+            setColorName(nearest('#' + color).name)
+        } else {
+            setColorName(null)
+        }
+    }, [showColorName])
 
     const removeColor = () => {
         colors.splice(index, 1)
@@ -41,12 +48,12 @@ export default function Card({ color, index, provider }) {
 
     const addColor = () => {
         if (colors.length >= 10) return
+
         let i = index + 1
         const newColors = chroma
             .scale([colors[index], colors[i] || '#000000'])
             .mode('lch')
             .colors(3)
-        console.log('newColor: ', newColors[1])
         colors.splice(i, 0, newColors[1].replaceAll('#', ''))
         navigate(`/${colors.join('-')}`)
     }
@@ -54,58 +61,62 @@ export default function Card({ color, index, provider }) {
     return (
         <div
             className='flex-1'
-            onMouseEnter={(e) => {
-                setHover(true)
-            }}
-            onMouseLeave={(e) => {
-                setHover(false)
-            }}
-            // onMouseMove={(e) => {
-            //     console.log(e)
-            // }}
             {...provider.draggableProps}
             {...provider.dragHandleProps}
             ref={provider.innerRef}
         >
             <div
-                className='p-4 h-full w-full relative flex justify-center items-end'
+                className='p-4 h-full w-full relative flex justify-center items-end bg-slate-50'
                 style={{ backgroundColor: '#' + color }}
             >
-                {hover && colors.length < 10 && (
-                    <div
-                        onClick={addColor}
-                        className={`absolute rounded-full w-11 h-11 bg-gray-100 shadow-md right-0 top-1/2 -translate-y-1/2 ${
-                            index === colors.length - 1
-                                ? '-translate-x-1/2'
-                                : 'translate-x-1/2'
-                        } z-10 flex justify-center items-center`}
-                    >
-                        <Plus />
-                    </div>
+                {colors.length < 10 && (
+                    <>
+                        {index === 0 && (
+                            <div className='group absolute left-0 w-1/3 z-30 top-0 bottom-0 flex justify-center items-center '>
+                                <div
+                                    onClick={() => {
+                                        const newColors = chroma
+                                            .scale(['#ffffff', colors[index]])
+                                            .mode('lch')
+                                            .colors(3)
+
+                                        colors.unshift(
+                                            newColors[1].replaceAll('#', '')
+                                        )
+                                        navigate(`/${colors.join('-')}`)
+                                    }}
+                                    className='hidden group-hover:flex rounded-full w-11 h-11 bg-gray-100 shadow-md z-10 justify-center items-center'
+                                >
+                                    <Plus />
+                                </div>
+                            </div>
+                        )}
+
+                        <div
+                            className={`group absolute right-0 w-1/3 z-30 top-0 bottom-0 flex justify-center items-center ${
+                                index === colors.length - 1
+                                    ? '-translate-x-1/5'
+                                    : 'translate-x-1/2'
+                            }`}
+                        >
+                            <div
+                                onClick={addColor}
+                                className='hidden group-hover:flex rounded-full w-11 h-11 bg-gray-100 shadow-md z-10 justify-center items-center'
+                            >
+                                <Plus />
+                            </div>
+                        </div>
+                    </>
                 )}
-                <div
-                    className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2  ${
-                        hover ? 'opacity-100' : 'opacity-0'
-                    }`}
-                >
-                    <Option isLight={isLight} onClick={removeColor}>
-                        <X />
-                    </Option>
-                    <Option isLight={isLight}>
-                        <Grid />
-                    </Option>
-                    <Option isLight={isLight}>
-                        <Star />
-                    </Option>
-                    <Option className='cursor-grab' isLight={isLight}>
-                        <Move />
-                    </Option>
-                    <Option isLight={isLight}>
-                        <Copy />
-                    </Option>
-                    <Option isLight={isLight}>
-                        <Unlock />
-                    </Option>
+                <div className='absolute inset-0 group'>
+                    <div className='absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 hidden group-hover:block'>
+                        <Option isLight={isLight} onClick={removeColor}>
+                            <X />
+                        </Option>
+                        <Option className='cursor-grab' isLight={isLight}>
+                            <Move />
+                        </Option>
+                    </div>
                 </div>
                 <div className='text-center'>
                     {isLight ? (
@@ -117,15 +128,17 @@ export default function Card({ color, index, provider }) {
                             #{color}
                         </h3>
                     )}
-                    {/* {isLight ? (
-                        <p className='text-black/80 font-semibold'>
-                            {nearest('#' + color).name}
-                        </p>
-                    ) : (
-                        <p className='text-white/80  font-semibold'>
-                            {nearest('#' + color).name}
-                        </p>
-                    )} */}
+
+                    {showColorName &&
+                        (isLight ? (
+                            <p className='text-black/80 font-semibold'>
+                                {colorName || '...'}
+                            </p>
+                        ) : (
+                            <p className='text-white/80  font-semibold'>
+                                {colorName || '...'}
+                            </p>
+                        ))}
                 </div>
             </div>
         </div>

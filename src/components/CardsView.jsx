@@ -12,8 +12,8 @@ export default function CardsView() {
     const [loading, setLoading] = useState(false)
     const [colors, _setColors] = useState(pathname.replace('/', '').split('-'))
     const colorsRef = useRef(colors)
-    const renders = useRef(0)
-    console.log('renders:', ++renders.current)
+    const [showColorName, setShowColorName] = useState(false)
+    const [hasPressedSpace, setHasPressedSpace] = useState(false)
     const setColors = (data) => {
         colorsRef.current = data
         _setColors(data)
@@ -25,8 +25,12 @@ export default function CardsView() {
 
     useEffect(() => {
         window.addEventListener('keydown', (event) => {
+            if (event.code === 'KeyN') {
+                setShowColorName((c) => !c)
+            }
             if (!loading && event.code === 'Space') {
                 setLoading(true)
+                setHasPressedSpace(true)
 
                 const c = chroma
                     .scale([
@@ -43,15 +47,12 @@ export default function CardsView() {
                     ])
                     .mode('lch')
                     .colors(colorsRef.current.length)
-                console.log(c)
                 setColors(c)
             }
         })
 
         return () => {
-            window.removeEventListener('keydown', (event) => {
-                console.log('A key wasssss pressed', event)
-            })
+            window.removeEventListener('keydown', (event) => {})
         }
     }, [])
 
@@ -64,7 +65,6 @@ export default function CardsView() {
     }, [colors])
 
     function handleDragEnd(result) {
-        console.log(result)
         const items = Array.from(colors)
         const [removed] = items.splice(result.source.index, 1)
         items.splice(result.destination.index, 0, removed)
@@ -73,6 +73,19 @@ export default function CardsView() {
 
     return (
         <main>
+            {!hasPressedSpace && (
+                <div className='absolute top-4 flex justify-center w-screen gap-1'>
+                    <div className='rounded-md shadow-md z-30 py-2 px-4 border text-black border-black bg-white animate-bounce'>
+                        Press space to generate
+                    </div>
+                    <div className='rounded-md shadow-md z-30 py-2 px-4 border text-black border-black bg-white animate-bounce'>
+                        Press N to toggle color names
+                    </div>
+                    <div className='rounded-md shadow-md z-30 py-2 px-4 border text-black border-black bg-white animate-bounce'>
+                        Drag a color to move it
+                    </div>
+                </div>
+            )}
             <DragDropContext onDragEnd={handleDragEnd}>
                 <Droppable droppableId='colors' direction='horizontal'>
                     {(provider) => (
@@ -84,13 +97,15 @@ export default function CardsView() {
                             {colors.map((color, index) => (
                                 <Draggable
                                     key={color}
-                                    draggableId={index.toString()}
+                                    draggableId={color}
                                     index={index}
                                 >
                                     {(provider) => (
                                         <Card
                                             color={color}
                                             index={index}
+                                            key={color}
+                                            showColorName={showColorName}
                                             provider={provider}
                                         />
                                     )}

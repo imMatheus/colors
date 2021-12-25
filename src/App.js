@@ -8,15 +8,11 @@ import {
 import CardsView from './components/CardsView'
 
 function App() {
+    console.log('Made by 3m@nu31, $1m0n and M@7h3u$')
     return (
         <Router>
             <Routes>
-                <Route
-                    exact
-                    path='/'
-                    element={<h1>hej</h1>}
-                    // element={<Navigate to='/fff-777-000' />}
-                />
+                <Route exact path='/' element={<Navigate to='/fff-000' />} />
                 <Route path='*' element={<CardsView />} />
             </Routes>
         </Router>
