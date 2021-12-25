@@ -13,7 +13,7 @@ function App() {
         <Router>
             <Routes>
                 <Route exact path='/' element={<Navigate to='/fff-000' />} />
-                <Route path='*' element={<CardsView />} />
+                <Route path='/:color' element={<CardsView />} />
             </Routes>
         </Router>
     )

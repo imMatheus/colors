@@ -26,7 +26,7 @@ export default function CardsView() {
     useEffect(() => {
         window.addEventListener('keydown', (event) => {
             if (event.code === 'KeyN') {
-                setShowColorName((c) => !c)
+                setShowColorName(!showColorName)
             }
             if (!loading && event.code === 'Space') {
                 setLoading(true)
