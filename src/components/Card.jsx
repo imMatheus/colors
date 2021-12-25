@@ -39,7 +39,7 @@ export default function Card({ color, index, provider, showColorName }) {
         } else {
             setColorName(null)
         }
-    }, [showColorName])
+    }, [color, showColorName])
 
     const removeColor = () => {
         colors.splice(index, 1)
