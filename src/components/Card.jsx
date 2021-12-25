@@ -131,11 +131,21 @@ export default function Card({ color, index, provider, showColorName }) {
 
                     {showColorName &&
                         (isLight ? (
-                            <p className='text-black/80 font-semibold'>
+                            <p
+                                className='text-black/70 text-xs font-semibold truncate px-3'
+                                style={{
+                                    maxWidth: (1 / colors.length) * 100 + 'vw',
+                                }}
+                            >
                                 {colorName || '...'}
                             </p>
                         ) : (
-                            <p className='text-white/80  font-semibold'>
+                            <p
+                                className='text-white/70 w-full text-xs font-semibold truncate'
+                                style={{
+                                    maxWidth: (1 / colors.length) * 100 + 'vw',
+                                }}
+                            >
                                 {colorName || '...'}
                             </p>
                         ))}
